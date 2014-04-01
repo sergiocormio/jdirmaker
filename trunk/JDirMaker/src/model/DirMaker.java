@@ -10,21 +10,21 @@ import java.io.File;
 public class DirMaker {
 	
 	public boolean createSetOfPaths(String paths){
-		return createSetOfPaths(paths,"/","\n");
+		return createSetOfPaths(paths,"/","\n","");
 	}
 	
-	public boolean createSetOfPaths(String paths, String directoriesSeparator, String pathsSeparator){
+	public boolean createSetOfPaths(String paths, String directoriesSeparator, String pathsSeparator,String parentPath){
 		boolean result = true;
 		paths = paths.replace(directoriesSeparator, "/");
 		for(String path : paths.split(pathsSeparator)){
-			result = result | createDirs(path);
+			result = result | createDirs(parentPath,path);
 		}
 		return result;
 	}
 	
-	private boolean createDirs(String path){
+	private boolean createDirs(String parentPath, String path){
 		try{
-			return new File(path).mkdirs();
+			return new File(parentPath,path).mkdirs();
 		}catch(Throwable t){
 			t.printStackTrace();
 			return false;
