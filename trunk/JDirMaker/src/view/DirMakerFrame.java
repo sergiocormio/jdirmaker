@@ -1,5 +1,6 @@
 package view;
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -50,6 +51,13 @@ public class DirMakerFrame extends JFrame{
 	private Preferences preferences;
 	private JButton openDestinationFolderButton;
 	private JFileChooser folderChooser;
+	private JRadioButton semicolonPathSeparator;
+	private JRadioButton tabPathSeparator;
+	private JRadioButton customPathSeparator;
+	private JTextField customPathTextField;
+	private JRadioButton customSeparatorRadioButton;
+	private JTextField customSeparatorTextField;
+	private JRadioButton backslashSeparator;
 
 	private DirMakerFrame() {
 		preferences = Preferences.userRoot().node(this.getClass().getName());
@@ -227,6 +235,12 @@ public class DirMakerFrame extends JFrame{
 	protected String getDirectoriesSeparator() {
 		if(dotSeparator.isSelected()){
 			return ".";
+		}else if(slashSeparator.isSelected()){
+			return "/";
+		}else if(backslashSeparator.isSelected()){
+			return "\\";
+		}else if(customSeparatorRadioButton.isSelected()){
+			return customSeparatorTextField.getText();
 		}else{
 			return "/";
 		}
@@ -235,7 +249,14 @@ public class DirMakerFrame extends JFrame{
 	private String getPathsSeparator() {
 		if(enterPathSeparator.isSelected()){
 			return "\n";
+		}else if(tabPathSeparator.isSelected()){
+			return "\t";
+		}else if(semicolonPathSeparator.isSelected()){
+			return ";";
+		}else if(customPathSeparator.isSelected()){
+			return customPathTextField.getText();
 		}
+	
 		return "\n";
 	}
 
@@ -252,15 +273,84 @@ public class DirMakerFrame extends JFrame{
 	private void createPathSeparatorPanel(JPanel topPanel) {
 		JPanel pathSeparatorPanel = new JPanel();
 		pathSeparatorPanel.setLayout(new BoxLayout(pathSeparatorPanel,BoxLayout.Y_AXIS));
+		pathSeparatorPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		pathSeparatorPanel.setBorder(new TitledBorder("Path Separator"));
+		//Enter
 		enterPathSeparator = new JRadioButton("Enter");
 		enterPathSeparator.setSelected(true);
+		enterPathSeparator.setAlignmentX(Component.LEFT_ALIGNMENT);
+		enterPathSeparator.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				customPathTextField.setEnabled(customPathSeparator.isSelected());
+			}
+		});
 		pathSeparatorPanel.add(enterPathSeparator);
+		//Tab
+		tabPathSeparator = new JRadioButton("Tab");
+		tabPathSeparator.setSelected(false);
+		tabPathSeparator.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				customPathTextField.setEnabled(customPathSeparator.isSelected());
+			}
+		});
+		pathSeparatorPanel.add(tabPathSeparator);
+		//Semicolon
+		semicolonPathSeparator = new JRadioButton("; (Semicolon)");
+		semicolonPathSeparator.setSelected(false);
+		semicolonPathSeparator.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				customPathTextField.setEnabled(customPathSeparator.isSelected());
+			}
+		});
+		pathSeparatorPanel.add(semicolonPathSeparator);
+		
+		JPanel customPathPanel = new JPanel(new FlowLayout(FlowLayout.LEFT,0,0));
+		customPathPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		//Custom
+		customPathSeparator = new JRadioButton("Custom");
+		customPathSeparator.setSelected(false);
+		customPathSeparator.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				customPathTextField.setEnabled(customPathSeparator.isSelected());
+			}
+		});
+		customPathPanel.add(customPathSeparator);
+		//Custom Path
+		customPathTextField = new JTextField(":");
+		customPathTextField.setPreferredSize(new Dimension(40, 20));
+		customPathTextField.setEnabled(false);
+		customPathTextField.addFocusListener(new FocusListener() {
+			
+			@Override
+			public void focusLost(FocusEvent arg0) {
+				if(customPathTextField.getText().length()==0){
+					customPathTextField.setText(":");
+				}
+			}
+			
+			@Override
+			public void focusGained(FocusEvent arg0) {
+			}
+		});
+		customPathPanel.add(customPathTextField);
+		
+		pathSeparatorPanel.add(customPathPanel);
 		
 		ButtonGroup separatorPathGroup = new ButtonGroup();
 		separatorPathGroup.add(enterPathSeparator);
+		separatorPathGroup.add(tabPathSeparator);
+		separatorPathGroup.add(semicolonPathSeparator);
+		separatorPathGroup.add(customPathSeparator);
 
-		pathSeparatorPanel.setPreferredSize(new Dimension(130, 80));
+		pathSeparatorPanel.setPreferredSize(new Dimension(130, 120));
 		topPanel.add(pathSeparatorPanel);
 	}
 	
@@ -269,22 +359,86 @@ public class DirMakerFrame extends JFrame{
 		separatorPanel.setBorder(new TitledBorder("Directory Separator"));
 		JPanel radioButtonsPanel = new JPanel();
 		radioButtonsPanel.setLayout(new BoxLayout(radioButtonsPanel,BoxLayout.Y_AXIS));
-		
-		slashSeparator = new JRadioButton("/ (slash)");
+		//SLASH
+		slashSeparator = new JRadioButton("/ (Slash)");
+		slashSeparator.setAlignmentX(Component.LEFT_ALIGNMENT);
 		slashSeparator.setSelected(true);
+		slashSeparator.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				customSeparatorTextField.setEnabled(customSeparatorRadioButton.isSelected());
+			}
+		});
 		radioButtonsPanel.add(slashSeparator);
 		
-		//Point separator
-		dotSeparator = new JRadioButton(". (dot)");
-		radioButtonsPanel.add(dotSeparator);
-		separatorPanel.add(radioButtonsPanel, BorderLayout.CENTER);
+		//BACK SLASH
+		backslashSeparator = new JRadioButton("\\ (Back Slash)");
+		backslashSeparator.setAlignmentX(Component.LEFT_ALIGNMENT);
+		backslashSeparator.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				customSeparatorTextField.setEnabled(customSeparatorRadioButton.isSelected());
+			}
+		});
+		radioButtonsPanel.add(backslashSeparator);
 		
-		separatorPanel.setPreferredSize(new Dimension(130, 80));
+		//Point separator
+		dotSeparator = new JRadioButton(". (Dot)");
+		dotSeparator.setAlignmentX(Component.LEFT_ALIGNMENT);
+		dotSeparator.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				customSeparatorTextField.setEnabled(customSeparatorRadioButton.isSelected());
+			}
+		});
+		radioButtonsPanel.add(dotSeparator);
+		
+		JPanel customSeparatorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT,0,0));
+		customSeparatorPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		//Custom
+		customSeparatorRadioButton = new JRadioButton("Custom");
+		customSeparatorRadioButton.setSelected(false);
+		customSeparatorRadioButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				customSeparatorTextField.setEnabled(customSeparatorRadioButton.isSelected());
+			}
+		});
+		customSeparatorPanel.add(customSeparatorRadioButton);
+		//Custom Path
+		customSeparatorTextField = new JTextField(":");
+		customSeparatorTextField.setPreferredSize(new Dimension(40, 20));
+		customSeparatorTextField.setEnabled(false);
+		customSeparatorTextField.addFocusListener(new FocusListener() {
+			
+			@Override
+			public void focusLost(FocusEvent arg0) {
+				if(customSeparatorTextField.getText().length()==0){
+					customSeparatorTextField.setText(":");
+				}
+			}
+			
+			@Override
+			public void focusGained(FocusEvent arg0) {
+			}
+		});
+		customSeparatorPanel.add(customSeparatorTextField);
+		
+		radioButtonsPanel.add(customSeparatorPanel);
+		
+		separatorPanel.add(radioButtonsPanel, BorderLayout.CENTER);
+		separatorPanel.setPreferredSize(new Dimension(130, 120));
 		mainPanel.add(separatorPanel);
 		
 		ButtonGroup separatorGroup = new ButtonGroup();
 		separatorGroup.add(dotSeparator);
 		separatorGroup.add(slashSeparator);
+		separatorGroup.add(backslashSeparator);
+		separatorGroup.add(customSeparatorRadioButton);
 	}
 
 	
