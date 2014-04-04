@@ -69,8 +69,8 @@ public class DirMakerFrame extends JFrame{
 		preferences = Preferences.userRoot().node(this.getClass().getName());
 		createForm();
 		pack();
-		this.setSize(new Dimension(720, 520));
-		this.setMinimumSize(new Dimension(720, 300));
+		this.setSize(new Dimension(730, 520));
+		this.setMinimumSize(new Dimension(730, 300));
 		this.setLocationRelativeTo(null);
 	}
 
