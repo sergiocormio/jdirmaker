@@ -11,7 +11,6 @@ import java.awt.event.FocusListener;
 import java.io.File;
 import java.util.prefs.Preferences;
 
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -37,6 +36,13 @@ import resources.ResourcesFactory;
 
 public class DirMakerFrame extends JFrame{
 	private static final String DESTINATION_FOLDER = "DESTINATION_FOLDER";
+	private static final String EXAMPLE_TEXT = "example/of/large/hierarchy/of/folders/that/could/be/created/using/jDirMaker\n"+
+												"example/of/large/hierarchy/of/folders/created/at/once\n"+
+												"example/of/large/hierarchy/of/folders/Documents\n"+
+												"example/of/large/hierarchy/of/folders/Images\n"+
+												"example/of/large/hierarchy/of/folders/Videos\n"+
+												"example/of/large/hierarchy/of/folders/Thanks\n";
+	protected static final String LAST_PATHS_CREATED = "LAST_PATHS_CREATED";
 	/**
 	 * 
 	 */
@@ -63,7 +69,8 @@ public class DirMakerFrame extends JFrame{
 		preferences = Preferences.userRoot().node(this.getClass().getName());
 		createForm();
 		pack();
-		this.setSize(new Dimension(640, 480));
+		this.setSize(new Dimension(720, 520));
+		this.setMinimumSize(new Dimension(720, 300));
 		this.setLocationRelativeTo(null);
 	}
 
@@ -123,7 +130,7 @@ public class DirMakerFrame extends JFrame{
 
 	private void createTopPanel(JPanel mainPanel) {
 		JPanel topPanel = new JPanel(new BorderLayout());
-		JPanel separatorsPanel = new JPanel(new FlowLayout());
+		JPanel separatorsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER,0,5));
 		createDirSeparatorPanel(separatorsPanel);
 		createPathSeparatorPanel(separatorsPanel);
 		createDestinationFolderPanel(topPanel);
@@ -215,6 +222,7 @@ public class DirMakerFrame extends JFrame{
 				String parentPath = getParentPath();
 				boolean result = new DirMaker().createSetOfPaths(paths, dirSeparator, pathsSeparator, parentPath);
 				if(result){
+					preferences.put(LAST_PATHS_CREATED, paths);
 					JOptionPane.showMessageDialog(DirMakerFrame.this, "Done!","Creation Success",JOptionPane.INFORMATION_MESSAGE);
 				}else{
 					JOptionPane.showMessageDialog(DirMakerFrame.this, "There was an error creating the directories.","Error",JOptionPane.ERROR_MESSAGE);
@@ -264,17 +272,17 @@ public class DirMakerFrame extends JFrame{
 		JPanel textAreaPanel = new JPanel(new BorderLayout());
 		JLabel label = new JLabel("Paths to be created:");
 		textAreaPanel.add(label,BorderLayout.NORTH);
-		pathsToCreateTextArea = new JTextArea("ar/com/tsoluciones/emergencies/server/businesslogic/resources/service/implementation/");
+		pathsToCreateTextArea = new JTextArea();
+		pathsToCreateTextArea.setText(preferences.get(LAST_PATHS_CREATED, EXAMPLE_TEXT));
 		JScrollPane textScroll = new JScrollPane(pathsToCreateTextArea);
 		textAreaPanel.add(textScroll,BorderLayout.CENTER);
 		mainPanel.add(textAreaPanel);
 	}
 	
 	private void createPathSeparatorPanel(JPanel topPanel) {
-		JPanel pathSeparatorPanel = new JPanel();
-		pathSeparatorPanel.setLayout(new BoxLayout(pathSeparatorPanel,BoxLayout.Y_AXIS));
-		pathSeparatorPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		JPanel pathSeparatorPanel = new JPanel(new FlowLayout());
 		pathSeparatorPanel.setBorder(new TitledBorder("Path Separator"));
+		
 		//Enter
 		enterPathSeparator = new JRadioButton("Enter");
 		enterPathSeparator.setSelected(true);
@@ -298,6 +306,7 @@ public class DirMakerFrame extends JFrame{
 			}
 		});
 		pathSeparatorPanel.add(tabPathSeparator);
+
 		//Semicolon
 		semicolonPathSeparator = new JRadioButton("; (Semicolon)");
 		semicolonPathSeparator.setSelected(false);
@@ -325,7 +334,7 @@ public class DirMakerFrame extends JFrame{
 		customPathPanel.add(customPathSeparator);
 		//Custom Path
 		customPathTextField = new JTextField(":");
-		customPathTextField.setPreferredSize(new Dimension(40, 20));
+		customPathTextField.setPreferredSize(new Dimension(30, 20));
 		customPathTextField.setEnabled(false);
 		customPathTextField.addFocusListener(new FocusListener() {
 			
@@ -350,15 +359,13 @@ public class DirMakerFrame extends JFrame{
 		separatorPathGroup.add(semicolonPathSeparator);
 		separatorPathGroup.add(customPathSeparator);
 
-		pathSeparatorPanel.setPreferredSize(new Dimension(130, 120));
+//		pathSeparatorPanel.setPreferredSize(new Dimension(130, 120));
 		topPanel.add(pathSeparatorPanel);
 	}
 	
 	private void createDirSeparatorPanel(JPanel mainPanel) {
-		JPanel separatorPanel = new JPanel(new BorderLayout());
+		JPanel separatorPanel = new JPanel(new FlowLayout());
 		separatorPanel.setBorder(new TitledBorder("Directory Separator"));
-		JPanel radioButtonsPanel = new JPanel();
-		radioButtonsPanel.setLayout(new BoxLayout(radioButtonsPanel,BoxLayout.Y_AXIS));
 		//SLASH
 		slashSeparator = new JRadioButton("/ (Slash)");
 		slashSeparator.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -370,7 +377,7 @@ public class DirMakerFrame extends JFrame{
 				customSeparatorTextField.setEnabled(customSeparatorRadioButton.isSelected());
 			}
 		});
-		radioButtonsPanel.add(slashSeparator);
+		separatorPanel.add(slashSeparator);
 		
 		//BACK SLASH
 		backslashSeparator = new JRadioButton("\\ (Back Slash)");
@@ -382,7 +389,7 @@ public class DirMakerFrame extends JFrame{
 				customSeparatorTextField.setEnabled(customSeparatorRadioButton.isSelected());
 			}
 		});
-		radioButtonsPanel.add(backslashSeparator);
+		separatorPanel.add(backslashSeparator);
 		
 		//Point separator
 		dotSeparator = new JRadioButton(". (Dot)");
@@ -394,7 +401,7 @@ public class DirMakerFrame extends JFrame{
 				customSeparatorTextField.setEnabled(customSeparatorRadioButton.isSelected());
 			}
 		});
-		radioButtonsPanel.add(dotSeparator);
+		separatorPanel.add(dotSeparator);
 		
 		JPanel customSeparatorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT,0,0));
 		customSeparatorPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -411,7 +418,7 @@ public class DirMakerFrame extends JFrame{
 		customSeparatorPanel.add(customSeparatorRadioButton);
 		//Custom Path
 		customSeparatorTextField = new JTextField(":");
-		customSeparatorTextField.setPreferredSize(new Dimension(40, 20));
+		customSeparatorTextField.setPreferredSize(new Dimension(30, 20));
 		customSeparatorTextField.setEnabled(false);
 		customSeparatorTextField.addFocusListener(new FocusListener() {
 			
@@ -428,10 +435,8 @@ public class DirMakerFrame extends JFrame{
 		});
 		customSeparatorPanel.add(customSeparatorTextField);
 		
-		radioButtonsPanel.add(customSeparatorPanel);
-		
-		separatorPanel.add(radioButtonsPanel, BorderLayout.CENTER);
-		separatorPanel.setPreferredSize(new Dimension(130, 120));
+		separatorPanel.add(customSeparatorPanel);
+//		separatorPanel.setPreferredSize(new Dimension(130, 120));
 		mainPanel.add(separatorPanel);
 		
 		ButtonGroup separatorGroup = new ButtonGroup();
